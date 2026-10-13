@@ -1,0 +1,35 @@
+# Paper-reproduction PFOM+MLKCM baseline plus a zero-init P3 local-detail residual.
+nc: 3
+scales:
+  s: [0.33, 0.50, 1024]
+
+backbone:
+  - [-1, 1, Conv, [64, 3, 2]]
+  - [-1, 1, Conv, [128, 3, 2]]
+  - [-1, 3, C2f, [128, true]]
+  - [-1, 1, Conv, [256, 3, 2]]
+  - [-1, 6, PFOM, [256]]
+  - [-1, 1, Conv, [512, 3, 2]]
+  - [-1, 6, PFOM, [512]]
+  - [-1, 1, Conv, [1024, 3, 2]]
+  - [-1, 3, PFOM, [1024]]
+  - [-1, 1, SPPF, [1024, 5]]
+
+head:
+  - [-1, 1, nn.Upsample, [null, 2, nearest]]
+  - [[-1, 6], 1, Concat, [1]]
+  - [-1, 3, PFOM, [512]]
+  - [-1, 1, nn.Upsample, [null, 2, nearest]]
+  - [[-1, 4], 1, Concat, [1]]
+  - [-1, 3, PFOM, [256]]
+  - [-1, 1, MLKCM, [256]]
+  - [-1, 1, P3DetailRestore, [256]]       # zero-init residual after P3 MLKCM
+  - [-1, 1, Conv, [256, 3, 2]]
+  - [[-1, 12], 1, Concat, [1]]
+  - [-1, 3, PFOM, [512]]
+  - [-1, 1, MLKCM, [512]]
+  - [-1, 1, Conv, [512, 3, 2]]
+  - [[-1, 9], 1, Concat, [1]]
+  - [-1, 3, PFOM, [1024]]
+  - [-1, 1, MLKCM, [1024]]
+  - [[17, 21, 25], 1, Detect, [3]]

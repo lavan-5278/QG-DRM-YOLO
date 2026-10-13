@@ -1,0 +1,52 @@
+# Complete DSA: DSAM/HGP + SSR/SSL with progressively mixed GT/prediction RoIs.
+nc: 3
+scales:
+  n: [0.33, 0.25, 1024]
+dsa:
+  train_base_detector: true
+  channels: 256
+  enable_hgp: true
+  enable_dsam: true
+  enable_ssr: true
+  enable_scl: true
+  enable_ssl: true
+  hgp: {num_zones: 4, k_neighbors: 5, zone_grid: [2, 2]}
+  dsam: {tau: 100.0}
+  ssr: {num_zones: 4, k_neighbors: 5, zone_grid: [2, 2]}
+  refinement: {lambda_cls: 1.0, lambda_box: 1.0}
+  scl: {tau_s: 2.0, delta_same: 0.3, delta_diff: 0.8, lambda_scl: 0.1}
+  ssl: {k_neighbors: 5, lambda_size: 1.0, lambda_align: 0.5, lambda_ssl: 0.05}
+  box_mixing:
+    enabled: true
+    total_epochs: 300
+    jitter_strength: 0.05
+    jitter_ratio: 0.40
+    match_iou_threshold: 0.30
+    proposal_confidence: 0.001
+    proposal_topk: 300
+
+backbone:
+  - [-1, 1, Conv, [64, 3, 2]]
+  - [-1, 1, Conv, [128, 3, 2]]
+  - [-1, 3, C2f, [128, true]]
+  - [-1, 1, Conv, [256, 3, 2]]
+  - [-1, 6, C2f, [256, true]]
+  - [-1, 1, Conv, [512, 3, 2]]
+  - [-1, 6, C2f, [512, true]]
+  - [-1, 1, Conv, [1024, 3, 2]]
+  - [-1, 3, C2f, [1024, true]]
+  - [-1, 1, SPPF, [1024, 5]]
+head:
+  - [-1, 1, nn.Upsample, [None, 2, nearest]]
+  - [[-1, 6], 1, Concat, [1]]
+  - [-1, 3, C2f, [512]]
+  - [-1, 1, nn.Upsample, [None, 2, nearest]]
+  - [[-1, 4], 1, Concat, [1]]
+  - [-1, 3, C2f, [256]]
+  - [-1, 1, Conv, [256, 3, 2]]
+  - [[-1, 12], 1, Concat, [1]]
+  - [-1, 3, C2f, [512]]
+  - [-1, 1, Conv, [512, 3, 2]]
+  - [[-1, 9], 1, Concat, [1]]
+  - [-1, 3, C2f, [1024]]
+  - [[15, 18, 21], 1, Detect, [nc]]

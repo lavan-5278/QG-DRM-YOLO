@@ -1,0 +1,9 @@
+# 5k_HRW YOLO detection dataset.
+# The source package contains numeric labels only; class semantics were not supplied
+# with the dataset, so neutral names are used until the dataset owner provides them.
+path: D:/YH_Project/DSA-Det/5k_HRW_yolo_Dataset
+train: images/train
+val: images/val
+
+nc: 3
+names: ["class_0", "class_1", "class_2"]

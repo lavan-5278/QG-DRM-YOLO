@@ -1,0 +1,4 @@
+name: SCB-Dataset3-U
+path: D:/YH_Project/DSA-Det/DSA-Det/data/SCB-Dataset3-U
+nc: 6
+names: [hand-raising, reading, writing, using-phone, head-down, lying-on-desk]

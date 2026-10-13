@@ -1,0 +1,4 @@
+name: SCB-Dataset3-S
+path: D:/YH_Project/DSA-Det/DSA-Det/data/SCB-Dataset3-S
+nc: 3
+names: [hand_raising, reading, writing]

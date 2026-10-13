@@ -1,0 +1,25 @@
+﻿diff --git a/ultralytics/nn/tasks.py b/ultralytics/nn/tasks.py
+index 9489272..fc62cdc 100644
+--- a/ultralytics/nn/tasks.py
++++ b/ultralytics/nn/tasks.py
+@@ -44,6 +44,7 @@ from ultralytics.nn.modules import (
+     Conv2,
+     ConvTranspose,
+     Detect,
++    DSRDetect,
+     DWConv,
+     DWConvTranspose2d,
+     Focus,
+@@ -1623,6 +1624,12 @@ def parse_model(d, ch, verbose=True):
+             args = [ch[f]]
+         elif m is Concat:
+             c2 = sum(ch[x] for x in f)
++        elif m is DSRDetect:  # DSR-Det head: inject dsr config + P3/P4/P5 channels
++            for j, a in enumerate(args):
++                if isinstance(a, str) and a == "dsr":
++                    args[j] = d.get("dsr", {})
++            args.insert(1, [ch[x] for x in f])  # DSRDetect(nc, ch, dsr_cfg)
++            m.legacy = legacy
+         elif m in frozenset(
+             {Detect, WorldDetect, YOLOEDetect, Segment, YOLOESegment, Pose, OBB, ImagePoolingAttn, v10Detect}
+         ):

@@ -1,0 +1,25 @@
+# YOLO11-Continue control group (v1.1 14.2).
+# Same Stage A best weights, same Stage B protocol (Mosaic/MixUp off, reduced LR,
+# B1+B2 total epochs), NO MDRR/refined losses. Runs through the official
+# model.train() with the standard yolo11.yaml.
+task: detect
+mode: train
+model: ultralytics/cfg/models/11/yolo11.yaml
+data: ultralytics/cfg/datasets/SCB-Dataset3-S.yaml
+epochs: 70 # B1(10-20) + B2(20-50), matched with scb_dsr_full.yaml
+imgsz: 640
+batch: 16
+device: 0
+workers: 8
+optimizer: auto
+mosaic: 0.0 # Stage B: Mosaic/MixUp off
+mixup: 0.0
+close_mosaic: 9999
+lr0: 0.001 # 1/10-1/20 of Stage A lr0
+lrf: 0.01
+patience: 30
+seed: 0 # Phase 5: run 3 seeds 0 / 42 / 3407
+project: runs/scb/yolo11n_continue
+name: exp
+plots: true
+val: true

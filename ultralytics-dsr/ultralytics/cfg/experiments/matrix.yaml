@@ -1,0 +1,244 @@
+# DSR-Det 实验矩阵定义 (v1.1 Phase 5)
+#
+# 运行:
+#   python scripts/run_experiments.py --matrix ultralytics/cfg/experiments/matrix.yaml
+# 常用:
+#   --dry-run                                  预览将要运行的计划
+#   --only dsr_full continue ablate_r0_none    只跑指定实验
+#   --seeds 0                                  只跑某个种子
+#   --device 1                                 覆盖设备
+#   --parallel 2                               并发 worker 数(多 GPU 时使用)
+#
+# 目录约定:runs/matrix/<experiment>/seed{0,42,3407}/,
+# 与 scripts/summarize_runs.py 兼容,汇总/对比直接用:
+#   python scripts/summarize_runs.py runs/matrix
+#   python scripts/summarize_runs.py runs/matrix --compare dsr_full continue
+#
+# 每个 experiments 条目 = 一个实验(全部种子)。
+# - cfg:  实验配置模板(epochs/增强等),来自 ultralytics/cfg/experiments/
+# - model:基础模型 yaml(DSR 消融会基于它生成带 dsr 覆盖的副本)
+# - trainer: "dsr" 用 DSRDetectionTrainer;省略用官方 trainer
+# - load_weights: "baseline" = global.baseline_weights;或显式路径;省略 = 不加载
+# - dsr:   dsr 配置块覆盖(消融开关);运行器会自动附加 validator: true
+# - train: 可选训练参数覆盖(如 epochs)
+#
+# 注意:gate_mode 消融必须同时设 use_uncertainty_gate: false,
+# 否则会被强制覆盖为 uncertainty(见 yolo11n-dsr.yaml 注释)。
+
+global:
+  runs_root: runs/matrix
+  data: ultralytics/cfg/datasets/SCB-Dataset3-S.yaml
+  imgsz: 640
+  batch: 16
+  device: 0
+  workers: 8
+  seeds: [0, 42, 3407]
+  # Stage A 基线权重(per-seed 配对:{seed} 会被替换为 0/42/3407)
+  baseline_weights: runs/matrix/baseline/seed{seed}/weights/best.pt
+
+experiments:
+  # ---------------- 模型对比(三组核心) ----------------
+  - name: baseline
+    cfg: ultralytics/cfg/experiments/scb_yolo11n_baseline.yaml
+    model: ultralytics/cfg/models/11/yolo11.yaml
+
+  - name: continue
+    cfg: ultralytics/cfg/experiments/scb_yolo11n_continue.yaml
+    model: ultralytics/cfg/models/11/yolo11.yaml
+    load_weights: baseline
+
+  - name: dsr_full
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+
+  # ---------------- 关系算子消融 R0-R7 (R6 signed_diff = dsr_full 默认) ----------------
+  - name: ablate_r0_none
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_type: none}
+
+  - name: ablate_r1_dot
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_type: dot}
+
+  - name: ablate_r2_concat
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_type: concat}
+
+  - name: ablate_r3_product
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_type: product}
+
+  - name: ablate_r4_abs_diff
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_type: abs_diff}
+
+  - name: ablate_r5_edgeconv
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_type: edgeconv}
+
+  - name: ablate_r7_transformer
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_type: transformer}
+
+  # ---------------- MDRR 内部变体 M1-M5 (M1 完整 Signed = dsr_full 默认) ----------------
+  - name: ablate_m2_no_geo
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_variant: no_geo}
+
+  - name: ablate_m3_no_gate
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_variant: no_gate}
+
+  - name: ablate_m4_flip
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_variant: flip}
+
+  - name: ablate_m5_shared
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_variant: shared}
+
+  # ---------------- 关系图消融 (v2 默认仅 KNN;此处验证重新加入 global/region 的影响) ----------------
+  - name: ablate_with_global
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {use_global: true}
+
+  - name: ablate_with_region
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {use_region: true}
+
+  # ---------------- v2 选择性机制消融 ----------------
+  - name: ablate_no_reliability
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {neighbor_reliability: false}
+
+  - name: ablate_no_preserve
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {lambda_preserve: 0.0}
+
+  - name: ablate_sel_lo
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {uncertainty_threshold: 0.1}
+
+  - name: ablate_sel_hi
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {uncertainty_threshold: 0.5}
+
+  # ---------------- 门控消融 (必须 use_uncertainty_gate: false) ----------------
+  - name: ablate_gate_fixed
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {use_uncertainty_gate: false, gate_mode: fixed}
+
+  - name: ablate_gate_scalar
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {use_uncertainty_gate: false, gate_mode: scalar}
+
+  - name: ablate_gate_conf
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {use_uncertainty_gate: false, gate_mode: conf}
+
+  - name: ablate_gate_feature
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {use_uncertainty_gate: false, gate_mode: feature}
+
+  # ---------------- 不确定性类型消融 (默认 max_prob) ----------------
+  - name: ablate_unc_margin
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {uncertainty_type: margin}
+
+  - name: ablate_unc_entropy
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {uncertainty_type: entropy}
+
+  # ---------------- 训练策略消融 ----------------
+  - name: ablate_ema_candidates
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {candidate_source: ema}
+
+  # ---------------- 候选参数消融(示例,可按需增删) ----------------
+  - name: ablate_topk_50
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {relation_topk: 50}
+
+  - name: ablate_conf_005
+    cfg: ultralytics/cfg/experiments/scb_dsr_full.yaml
+    model: ultralytics/cfg/models/11/yolo11n-dsr.yaml
+    trainer: dsr
+    load_weights: baseline
+    dsr: {candidate_conf: 0.05}

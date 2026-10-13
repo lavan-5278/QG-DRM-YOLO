@@ -1,0 +1,10 @@
+# Tiny smoke dataset (6 images copied from SCB-Dataset3-S val) for Phase 1
+# train/val/predict smoke tests. All training/evaluation still goes through
+# model.train() / model.val() / model.predict().
+# No explicit path: ultralytics resolves the dataset root to this yaml's parent
+# directory (tests/data), keeping the fixture portable across machines.
+train: smoke/images
+val: smoke/images
+
+nc: 3
+names: ["hand_raising", "reading", "writing"]

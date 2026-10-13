@@ -1,0 +1,86 @@
+# Ultralytics AGPL-3.0 License - https://ultralytics.com/license
+# YOLOv8n + DSR-Det. The backbone and neck match official YOLOv8n; only the
+# Detect head is replaced by the registered DSRDetect refinement head.
+
+nc: 3
+scales:
+  n: [0.33, 0.25, 1024]
+
+# From-scratch protocol: do not freeze randomly initialized base-detector
+# weights. All DSR components are trained jointly under the baseline schedule.
+dsr:
+  enabled: true
+  relation_dim: 128
+  roi_size: 3
+  pre_topk: 300
+  relation_topk: 100
+  candidate_conf: 0.03
+  candidate_iou: 0.70
+  min_candidates: 2
+  neighbor_k: 5
+  use_composition: true
+  composition_proto: conf
+  uncertainty_type: margin
+  uncertainty_threshold: 0.5
+  preserve_threshold: 0.9
+  neighbor_reliability: true
+  gate_mode: uncertainty
+  track_uncertainty: true
+  relation_type: signed_diff
+  relation_variant: none
+  include_geometry: true
+  candidate_source: current
+  ema_decay: 0.999
+  track_stability: true
+  stability_ref_epoch: 0
+  stability_every: 5
+  stability_probe_batches: 1
+  stage_b1_epochs: 0
+  stage_b1_freeze: []
+  stage_b2_freeze: []
+  stage_b2_lr_scale: 1.0
+  lambda_relation: 1.0
+  lambda_preserve: 0.5
+  use_gicr: true
+  lambda_gicr: 0.05
+  lambda_gicr_diff: 0.5
+  gicr_warmup_epochs: 5
+  gicr_m_s: 0.3
+  gicr_m_d: 0.8
+  gicr_tau_g: 2.0
+  use_global: false
+  use_region: false
+  use_neighbor: true
+  use_uncertainty_gate: true
+  validator: false
+  oracle: true
+  scenario_conf_sweep: [0.01, 0.03, 0.05, 0.10]
+  scenario_bootstrap: true
+  bootstrap_iters: 200
+
+backbone:
+  - [-1, 1, Conv, [64, 3, 2]]
+  - [-1, 1, Conv, [128, 3, 2]]
+  - [-1, 3, C2f, [128, true]]
+  - [-1, 1, Conv, [256, 3, 2]]
+  - [-1, 6, C2f, [256, true]]
+  - [-1, 1, Conv, [512, 3, 2]]
+  - [-1, 6, C2f, [512, true]]
+  - [-1, 1, Conv, [1024, 3, 2]]
+  - [-1, 3, C2f, [1024, true]]
+  - [-1, 1, SPPF, [1024, 5]]
+
+head:
+  - [-1, 1, nn.Upsample, [None, 2, nearest]]
+  - [[-1, 6], 1, Concat, [1]]
+  - [-1, 3, C2f, [512]]
+  - [-1, 1, nn.Upsample, [None, 2, nearest]]
+  - [[-1, 4], 1, Concat, [1]]
+  - [-1, 3, C2f, [256]]
+  - [-1, 1, Conv, [256, 3, 2]]
+  - [[-1, 12], 1, Concat, [1]]
+  - [-1, 3, C2f, [512]]
+  - [-1, 1, Conv, [512, 3, 2]]
+  - [[-1, 9], 1, Concat, [1]]
+  - [-1, 3, C2f, [1024]]
+  - [[15, 18, 21], 1, DSRDetect, [nc, dsr]]

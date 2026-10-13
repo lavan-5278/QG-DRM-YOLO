@@ -1,0 +1,7 @@
+# SCB-Dataset3 (DSR-Det, full-size 3-class variant).
+path: D:/YH_Project/DSA-Det/DSA-Det/data/SCB-Dataset3
+train: images/train
+val: images/val
+
+nc: 3
+names: ["hand_raising", "reading", "writing"]

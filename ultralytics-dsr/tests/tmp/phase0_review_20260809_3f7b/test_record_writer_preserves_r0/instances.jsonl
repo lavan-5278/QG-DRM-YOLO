@@ -1,0 +1,1 @@
+{"area_norm": 0.01, "competition": 0.3, "gt_cls": 1, "gt_index": 0, "image_id": "img.jpg", "log_area_norm": -4.60517, "matched_conf": 0.8, "matched_iou": 0.7, "matched_pred_index": 2, "x_center_norm": 0.4, "y_center_norm": 0.6}

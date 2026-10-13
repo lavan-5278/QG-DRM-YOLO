@@ -1,0 +1,8 @@
+# SCB-Dataset3-S (DSR-Det) - points into the workspace data directory.
+# 5193 train / 1671 val images; 3 classes: hand_raising, reading, writing.
+path: D:/YH_Project/DSA-Det/DSA-Det/data/SCB-Dataset3-S
+train: images/train
+val: images/val
+
+nc: 3
+names: ["hand_raising", "reading", "writing"]

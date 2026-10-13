@@ -1,0 +1,7 @@
+# SCB-Dataset3-U (DSR-Det, 6-class long-tail variant).
+path: D:/YH_Project/DSA-Det/DSA-Det/data/SCB-Dataset3-U
+train: images/train
+val: images/val
+
+nc: 6
+names: ["hand-raising", "reading", "writing", "using-phone", "head-down", "lying-on-desk"]

@@ -1,0 +1,2 @@
+﻿dataset,delta_r3,perm_p,dist_effect,net_first_bin,net_last_bin,trend,rpg_local,rpg_global,rpg_all,og,A,B,C,D,rpg_local_lr,rpg_global_lr,rpg_all_lr,og_lr,memorization_flag,val_duplicate_layout_ratio,decision,decision_algo
+SCB-Dataset3-S,0.02410306622592029,0.000999000999000999,True,0.0214379578161229,-0.01625357721626819,-0.9817597388771861,0.40126904340858843,0.24007972565198815,0.3669163171728638,0.3068584768039397,False,True,True,True,0.3914859807796606,0.3612317825051075,0.4017450617680664,0.39030849481722013,False,0.0,CONTINUE,tree
