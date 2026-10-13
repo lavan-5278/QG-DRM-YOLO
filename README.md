@@ -50,6 +50,8 @@ This project is developed for classroom behavior detection using the SCB-Dataset
 - SCB-Dataset3-S: used for evaluation under the reported settings
 - SCB-Dataset3-U: six-class dataset used for independent training and evaluation
 
+The source SCB-Dataset3 data analysed in this study were obtained from the dataset creators and can be accessed through [https://github.com/Whiffe/SCB-dataset](https://github.com/Whiffe/SCB-dataset).
+
 ## Experimental Results
 
 On SCB-Dataset3-S, compared with YOLOv8n, QG-DRM-YOLO achieves:
