@@ -1,3 +1,0 @@
-﻿dataset,split,images,instances,avg_per_image,median_per_image,max_per_image,empty_images,single_object_ratio,relation_valid_ratio,imbalance_ratio,area_mean,aspect_median,class_0,class_1,class_2,class_3,class_4,class_5
-SCB-Dataset3-U,train,797,23608,29.62107904642409,30.0,41,0,0.0,1.0,518.7777777777778,0.006349284924497806,0.5721353392673884,18,9338,3524,8363,1143,1222
-SCB-Dataset3-U,val,209,6045,28.923444976076556,29.0,40,0,0.0,1.0,598.0,0.006442104120067686,0.5730711176039487,4,2392,948,2101,279,321
