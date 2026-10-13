@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qgdrm-yolo-reproduction"
+version = "0.1.0"
+description = "Ultralytics reimplementation guided by the QG-DRM-YOLO manuscript"
+requires-python = ">=3.10"
+dependencies = ["ultralytics==8.3.241", "PyYAML>=6"]
+
+[tool.setuptools.packages.find]
+include = ["qgdrm*", "scripts*"]

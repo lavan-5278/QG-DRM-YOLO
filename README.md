@@ -66,48 +66,80 @@ These results show that integrating reliability-guided enhancement and multi-sca
 ## Repository Structure
 
 ```text
-QG-DRM-YOLO/
+QG-DRM-YOLO-Ultralytics/
 ├── configs/
-│   └── ...
-├── datasets/
-│   └── ...
-├── models/
-│   └── ...
+│   ├── scb_s.yaml
+│   └── scb_u.yaml
+├── qgdrm/
+│   ├── __init__.py
+│   ├── modules.py
+│   └── ultra.py
 ├── scripts/
-│   └── ...
-├── train.py
-├── val.py
-├── detect.py
+│   ├── __init__.py
+│   ├── ablate.py
+│   ├── cam.py
+│   ├── check_dataset.py
+│   ├── compare_results.py
+│   ├── inspect_model.py
+│   ├── predict.py
+│   ├── train.py
+│   ├── train_baseline.py
+│   ├── validate.py
+│   └── viz_compare.py
+├── tests/
+│   ├── test_modules.py
+│   └── test_ultra_integration.py
+├── pyproject.toml
 ├── requirements.txt
-├── README.md
-├── LICENSE
-└── .gitignore
+└── README.md
 ```
 
 ## Installation
 
 ```bash
-git clone https://github.com/lavan-5278/QG-DRM-YOLO.git
-cd QG-DRM-YOLO
+# Option 1: Clone the repository after uploading this project to GitHub
+# git clone https://github.com/lavan-5278/QG-DRM-YOLO.git
+# cd QG-DRM-YOLO
+
+# Option 2: Use the supplied ZIP archive (after extraction)
+cd QG-DRM-YOLO-Ultralytics
+
+# Install dependencies and the local package
 pip install -r requirements.txt
+pip install -e .
+
+# Check the model structure
+python -m scripts.inspect_model --variant a4 --nc 3 --imgsz 640
 ```
 
 ## Training
 
 ```bash
-python train.py --data your_dataset.yaml --epochs 300 --img 640
+# Train the complete model on SCB-Dataset3-S
+python -m scripts.train --data configs/scb_s.yaml --variant a4 \
+  --device 0 --epochs 300 --batch 8 --project runs/scb_s --name a4
+
+# Run all five progressive ablation experiments (A0-A4)
+python -m scripts.ablate --data configs/scb_s.yaml \
+  --device 0 --epochs 300 --project runs/ablation_s
+
+# Train the complete model independently on SCB-Dataset3-U
+python -m scripts.train --data configs/scb_u.yaml --variant a4 \
+  --device 0 --epochs 300 --batch 8 --project runs/scb_u --name a4
 ```
 
 ## Validation
 
 ```bash
-python val.py --weights runs/train/exp/weights/best.pt --data your_dataset.yaml
+python -m scripts.validate --weights runs/scb_s/a4/weights/best.pt \
+  --data configs/scb_s.yaml --device 0
 ```
 
 ## Inference
 
 ```bash
-python detect.py --weights runs/train/exp/weights/best.pt --source your_image_or_video
+python -m scripts.predict --weights runs/scb_s/a4/weights/best.pt \
+  --source your_image_or_video --device 0
 ```
 
 ## Notes

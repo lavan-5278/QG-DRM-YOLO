@@ -1,0 +1,10 @@
+# Replace the following root with your LOCAL extracted SCB-Dataset3-S root.
+# Directory layout: images/train, images/val, labels/train, labels/val
+path: /ABSOLUTE/PATH/TO/SCB-Dataset3-S
+train: images/train
+val: images/val
+nc: 3
+names:
+  0: hand_raising
+  1: reading
+  2: writing

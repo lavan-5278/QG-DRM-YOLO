@@ -1,0 +1,13 @@
+# Replace the root with your LOCAL extracted SCB-Dataset3-U root.
+# Check and RE-MAP source dataset numeric label IDs to this exact order!
+path: /ABSOLUTE/PATH/TO/SCB-Dataset3-U
+train: images/train
+val: images/val
+nc: 6
+names:
+  0: hand_raising
+  1: reading
+  2: writing
+  3: phone_use
+  4: head_down
+  5: lying_on_desk

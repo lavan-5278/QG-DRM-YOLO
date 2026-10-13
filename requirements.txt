@@ -1,0 +1,4 @@
+# Install the correct CUDA build of PyTorch separately for your GPU.
+ultralytics==8.3.241
+numpy>=1.24
+PyYAML>=6.0
